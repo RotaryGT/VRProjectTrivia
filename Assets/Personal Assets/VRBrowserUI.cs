@@ -144,7 +144,6 @@ namespace ZenFulcrum.EmbeddedBrowser
             if (Input.GetMouseButton(0)) buttons |= MouseButton.Left;
             if (Input.GetMouseButton(1)) buttons |= MouseButton.Right;
             if (Input.GetMouseButton(2)) buttons |= MouseButton.Middle;
-            MouseButtons = buttons;
 
             if (vrCursorObject != null)
             {
@@ -153,11 +152,13 @@ namespace ZenFulcrum.EmbeddedBrowser
                 {
                     if (controller.triggerPressed)
                     {
-                        Debug.Log("Pressed Trigger");
                         buttons |= MouseButton.Left;
                     }
                 }
             }
+
+            MouseButtons = buttons;
+
             MouseScroll = Input.mouseScrollDelta;
 
 
