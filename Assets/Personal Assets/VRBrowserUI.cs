@@ -119,8 +119,8 @@ namespace ZenFulcrum.EmbeddedBrowser
             RaycastHit hit;
             Physics.Raycast(mouseRay, out hit, maxDistance);
 
-            if (hit.transform != meshCollider.transform)
-            {
+            //@SENIORVRPROJECT
+            /*if (hit.transform != meshCollider.transform) {
                 //not looking at it.
                 MousePosition = new Vector3(0, 0);
                 MouseButtons = 0;
@@ -131,36 +131,46 @@ namespace ZenFulcrum.EmbeddedBrowser
 
                 LookOff();
                 return;
-            }
+            }*/
+            //@SENIORVRPROJECT
             LookOn();
-            MouseHasFocus = true;
             KeyboardHasFocus = true;
 
+            //@SENIORVRPROJECT
             //convert ray hit to useful mouse position on page
-            var localPoint = hit.textureCoord;
-            MousePosition = localPoint;
-
-            var buttons = (MouseButton)0;
-            if (Input.GetMouseButton(0)) buttons |= MouseButton.Left;
-            if (Input.GetMouseButton(1)) buttons |= MouseButton.Right;
-            if (Input.GetMouseButton(2)) buttons |= MouseButton.Middle;
-
-            if (vrCursorObject != null)
+            if (hit.transform == meshCollider.transform)
             {
-                controller = vrCursorObject.GetComponent<SteamVR_TrackedController>();
-                if (controller != null)
+                var localPoint = hit.textureCoord;
+                MousePosition = localPoint;
+
+                var buttons = (MouseButton)0;
+                if (Input.GetMouseButton(0)) buttons |= MouseButton.Left;
+                if (Input.GetMouseButton(1)) buttons |= MouseButton.Right;
+                if (Input.GetMouseButton(2)) buttons |= MouseButton.Middle;
+
+                if (vrCursorObject != null)
                 {
-                    if (controller.triggerPressed)
+                    controller = vrCursorObject.GetComponent<SteamVR_TrackedController>();
+                    if (controller != null)
                     {
-                        buttons |= MouseButton.Left;
+                        if (controller.triggerPressed)
+                        {
+                            buttons |= MouseButton.Left;
+                        }
                     }
                 }
+
+                MouseButtons = buttons;
+
+                MouseScroll = Input.mouseScrollDelta;
+                MouseHasFocus = true;
             }
-
-            MouseButtons = buttons;
-
-            MouseScroll = Input.mouseScrollDelta;
-
+            else
+            {
+                MouseHasFocus = false;
+                LookOff();
+            }
+            //@SENIORVRPROJECT
 
             //Unity doesn't include events for some keys, so fake it by checking each frame.
             for (int i = 0; i < keysToCheck.Length; i++)
@@ -210,6 +220,22 @@ namespace ZenFulcrum.EmbeddedBrowser
             }
             mouseWasOver = false;
         }
+        //@SENIORVRPROJECT
+        public void InjectKeyEvent(Event ev)
+        {
+            Browser browser = this.gameObject.GetComponent<Browser>();
+
+            if (ev.keyCode == KeyCode.Backspace)
+            {
+                BrowserNative.zfb_keyEvent(browser.browserId, true, 8);
+            }
+            else
+            {
+                int windowsKeyCode = KeyMappings.GetWindowsKeyCode(ev);
+                BrowserNative.zfb_characterEvent(browser.browserId, ev.character, windowsKeyCode);
+            }
+        }
+        //@SENIORVRPROJECT
 
         protected void CursorUpdated()
         {
